@@ -76,16 +76,32 @@ button:disabled:hover {
   flex-direction: row;
   flex-wrap: wrap;
   gap: 15px;
+  justify-content: center;
+}
+
+.view-template-label {
+  font-family: Roboto;
+  padding: 10px 0 20px 0;
 }
 
 .view-template {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
   border: 1px solid white;
   padding: 10px;
   color: white;
+  height: 300px;
+  width: 300px;
 
   /* make text non-selectable */
   -webkit-user-select: none; /* Safari */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE10+/Edge */
   user-select: none; /* Standard */
+}
+
+.view-template-grid {
+  align-self: center;
 }

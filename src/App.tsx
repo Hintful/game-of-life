@@ -4,11 +4,11 @@ import "react-awesome-button/dist/styles.css";
 import { templates } from './Template';
 import ViewTemplates from './ViewTemplates';
 
-const NUM_ROWS = 50; // max 50
-const NUM_COLS = 120; // max 120
+export const NUM_ROWS = 50; // max 50
+export const NUM_COLS = 120; // max 120
 
-const GRID_WIDTH = 15;
-const GRID_HEIGHT = 15;
+export const GRID_WIDTH = 15;
+export const GRID_HEIGHT = 15;
 
 const INITIAL_SIMULATION_SPEED = 300; // one tick = 300ms
 
