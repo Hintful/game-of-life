@@ -160,8 +160,12 @@ function App() {
           }} disabled={runningRef.current} />
           <div>{`${simulationSpeed}ms`}</div>
         </div>
+        <div className="view-template-title">
+          Templates
+        </div>
         <div className="view-template-container">
-          { templates.map(template => (
+
+          {templates.map(template => (
             <ViewTemplates template={template} loadTemplate={loadTemplate} />
           ))}
         </div>

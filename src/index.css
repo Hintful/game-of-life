@@ -71,6 +71,15 @@ button:disabled:hover {
   color: white;
 }
 
+.view-template-title {
+  font-family: Roboto;
+  font-size: 2em;
+  color: white;
+  letter-spacing: -1px;
+
+  margin-top: 30px;
+}
+
 .view-template-container {
   display: flex;
   flex-direction: row;
@@ -81,7 +90,7 @@ button:disabled:hover {
 
 .view-template-label {
   font-family: Roboto;
-  padding: 10px 0 20px 0;
+  padding: 10px 0 0px 0;
 }
 
 .view-template {
@@ -89,19 +98,45 @@ button:disabled:hover {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  border: 1px solid white;
+  border: 2px solid white;
+  border-radius: 5px;
   padding: 10px;
   color: white;
-  height: 300px;
-  width: 300px;
+  height: auto;
+  width: auto;
 
   /* make text non-selectable */
   -webkit-user-select: none; /* Safari */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE10+/Edge */
   user-select: none; /* Standard */
+
+  transition: all 0.2s
+}
+
+.view-template:hover {
+  color: black;
+  background: white;
+  cursor: pointer;
+
+  transition: all 0.2s
+}
+
+.view-template:hover hr {
+  background-color: black;
+
+  transition: all 0.2s
 }
 
 .view-template-grid {
   align-self: center;
+  margin-top: 20px;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  color: white;
+  background-color: white;
+  width: 100%;
 }
