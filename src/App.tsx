@@ -8,7 +8,7 @@ const NUM_COLS = 120; // max 120
 const GRID_WIDTH = 15;
 const GRID_HEIGHT = 15;
 
-const INITIAL_SIMULATION_SPEED = 50; // one tick = 500ms
+const INITIAL_SIMULATION_SPEED = 300; // one tick = 300ms
 
 const neighbour_coords = [
   [-1, -1], [-1, 0], [-1, 1], [0, 1], [0, -1], [1, -1], [1, 0], [1, 1]
@@ -75,6 +75,8 @@ function App() {
             rows.map((col: number[], x: number) =>
               <div
                 onClick={() => {
+                  // all element must be updated simultaneously
+                  // create gridCopy to calculate values first, then copy over
                   const newGrid = produce(grid, gridCopy => {
                     gridCopy[y][x] = 1 - gridCopy[y][x]; // toggle
                   });
@@ -104,6 +106,26 @@ function App() {
           >{running ? 'Stop' : 'Start'}
           </button>
           <button
+            style={{
+              padding: "10px 30px"
+            }}
+            onClick={() => {
+              setGrid((curGrid) => {
+                return (produce(curGrid, gridCopy => {
+                  for (let y = 0; y < NUM_ROWS; y++) {
+                    for (let x = 0; x < NUM_COLS; x++) {
+                      gridCopy[y][x] = 0
+                    }
+                  }
+                }))
+              })
+
+            }}
+            disabled={runningRef.current}
+          >
+            Reset
+          </button>
+          <button
             onClick={() => {
               setWrapAround(!wrapAround);
               wrapAroundRef.current = !wrapAround;
@@ -113,7 +135,7 @@ function App() {
           </button>
         </div>
         <div className="speed-control-container">
-          <input type="range" min={50} max={1000} onChange={(e) => {
+          <input type="range" min={20} max={1000} value={simulationSpeed} onChange={(e) => {
             setSimulationSpeed(Number(e.target.value));
           }} disabled={runningRef.current} />
           <div>{`${simulationSpeed}ms`}</div>
