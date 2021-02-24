@@ -31,6 +31,10 @@ function App() {
   const speedRef = useRef(simulationSpeed);
   speedRef.current = simulationSpeed;
 
+  const pageTop = useRef<HTMLInputElement>(null);
+
+  
+
   function resetGrid() {
     setGrid((curGrid) => {
       return (produce(curGrid, gridCopy => {
@@ -58,6 +62,9 @@ function App() {
         }
       }))
     })
+
+    if(pageTop && pageTop.current)
+      pageTop.current.scrollIntoView({ behavior: "smooth" });
   }
 
   const runSimulation = useCallback(() => {
@@ -97,7 +104,7 @@ function App() {
 
   return (
     <div className="App">
-      <div className="grid-container">
+      <div className="grid-container" ref={pageTop}>
         <div style={{
           display: 'grid',
           gridTemplateColumns: `repeat(${NUM_COLS}, ${GRID_WIDTH}px)`
