@@ -1,13 +1,13 @@
 import React, { useCallback, useRef, useState } from 'react';
 import produce from 'immer';
 
-const NUM_ROWS = 50;
-const NUM_COLS = 50;
+const NUM_ROWS = 50; // max 50
+const NUM_COLS = 120; // max 120
 
 const GRID_WIDTH = 15;
 const GRID_HEIGHT = 15;
 
-const SIMULATION_SPEED = 200; // one tick = 500ms
+const SIMULATION_SPEED = 50; // one tick = 500ms
 
 const neighbour_coords = [
   [-1, -1], [-1, 0], [-1, 1], [0, 1], [0, -1], [1, -1], [1, 0], [1, 1]
@@ -19,7 +19,10 @@ function App() {
   })
   const [running, setRunning] = useState(false);
   const runningRef = useRef(running);
+  const [wrapAround, setWrapAround] = useState(true);
+  const wrapAroundRef = useRef(wrapAround);
   runningRef.current = running;
+  wrapAroundRef.current = wrapAround;
 
   const runSimulation = useCallback(() => {
     if (!runningRef.current) { return; }
@@ -30,9 +33,15 @@ function App() {
             for (let x = 0; x < NUM_COLS; x++) {
               let neighbour_cells = 0
               neighbour_coords.forEach(([a, b]) => {
-                const newY = y + a;
-                const newX = x + b;
-                if (newY >= 0 && newY < NUM_ROWS && newX >= 0 && newX < NUM_COLS) {
+                if (!wrapAroundRef.current) {
+                  const newY = y + a;
+                  const newX = x + b;
+                  if (newY >= 0 && newY < NUM_ROWS && newX >= 0 && newX < NUM_COLS) {
+                    neighbour_cells += curGrid[newY][newX];
+                  }
+                } else {
+                  const newY = (y + a + NUM_ROWS) % NUM_ROWS;
+                  const newX = (x + b + NUM_COLS) % NUM_COLS;
                   neighbour_cells += curGrid[newY][newX];
                 }
               })
@@ -60,6 +69,14 @@ function App() {
           runSimulation();
         }}
       >{running ? 'Stop' : 'Start'}</button>
+      <button
+        onClick={() => {
+          setWrapAround(!wrapAround);
+          wrapAroundRef.current = !wrapAround;
+        }}
+        disabled={runningRef.current}
+      >{wrapAround ? 'Wrap-around: ON' : 'Wrap-around: OFF'}
+      </button>
       <div style={{
         display: 'grid',
         gridTemplateColumns: `repeat(${NUM_COLS}, ${GRID_WIDTH}px)`
