@@ -1,6 +1,8 @@
 import React, { useCallback, useRef, useState } from 'react';
 import produce from 'immer';
 import "react-awesome-button/dist/styles.css";
+import { templates } from './Template';
+import ViewTemplates from './ViewTemplates';
 
 const NUM_ROWS = 50; // max 50
 const NUM_COLS = 120; // max 120
@@ -28,6 +30,35 @@ function App() {
   const [simulationSpeed, setSimulationSpeed] = useState(INITIAL_SIMULATION_SPEED);
   const speedRef = useRef(simulationSpeed);
   speedRef.current = simulationSpeed;
+
+  function resetGrid() {
+    setGrid((curGrid) => {
+      return (produce(curGrid, gridCopy => {
+        for (let y = 0; y < NUM_ROWS; y++) {
+          for (let x = 0; x < NUM_COLS; x++) {
+            gridCopy[y][x] = 0
+          }
+        }
+      }))
+    })
+  }
+
+  function loadTemplate(template: number[][]) {
+    // load the template on the approximate center of the grid
+    const originX = Math.floor(NUM_COLS / 2) - Math.floor(template[0].length / 2);
+    const originY = Math.floor(NUM_ROWS / 2) - Math.floor(template.length / 2);
+
+    resetGrid();
+    setGrid((curGrid) => {
+      return (produce(curGrid, gridCopy => {
+        for (let y = 0; y < template.length; y++) {
+          for (let x = 0; x < template[0].length; x++) {
+            gridCopy[y + originY][x + originX] = template[y][x];
+          }
+        }
+      }))
+    })
+  }
 
   const runSimulation = useCallback(() => {
     if (!runningRef.current) { return; }
@@ -109,18 +140,7 @@ function App() {
             style={{
               padding: "10px 30px"
             }}
-            onClick={() => {
-              setGrid((curGrid) => {
-                return (produce(curGrid, gridCopy => {
-                  for (let y = 0; y < NUM_ROWS; y++) {
-                    for (let x = 0; x < NUM_COLS; x++) {
-                      gridCopy[y][x] = 0
-                    }
-                  }
-                }))
-              })
-
-            }}
+            onClick={() => { resetGrid(); }}
             disabled={runningRef.current}
           >
             Reset
@@ -139,6 +159,11 @@ function App() {
             setSimulationSpeed(Number(e.target.value));
           }} disabled={runningRef.current} />
           <div>{`${simulationSpeed}ms`}</div>
+        </div>
+        <div className="view-template-container">
+          { templates.map(template => (
+            <ViewTemplates template={template} loadTemplate={loadTemplate} />
+          ))}
         </div>
       </div>
     </div>
