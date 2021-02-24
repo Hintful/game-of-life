@@ -46,7 +46,7 @@ function App() {
                 }
               })
 
-              if ( neighbour_cells < 2 || neighbour_cells > 3) {
+              if (neighbour_cells < 2 || neighbour_cells > 3) {
                 gridCopy[y][x] = 0; // kill cell
               } else if (curGrid[y][x] === 0 && neighbour_cells === 3) {
                 gridCopy[y][x] = 1;
@@ -62,41 +62,46 @@ function App() {
 
   return (
     <div className="App">
-      <button
-        onClick={() => {
-          setRunning(!running);
-          runningRef.current = true;
-          runSimulation();
-        }}
-      >{running ? 'Stop' : 'Start'}</button>
-      <button
-        onClick={() => {
-          setWrapAround(!wrapAround);
-          wrapAroundRef.current = !wrapAround;
-        }}
-        disabled={runningRef.current}
-      >{wrapAround ? 'Wrap-around: ON' : 'Wrap-around: OFF'}
-      </button>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: `repeat(${NUM_COLS}, ${GRID_WIDTH}px)`
-      }}>
-        {grid.map((rows, y) =>
-          rows.map((col: number[], x: number) =>
-            <div
-              onClick={() => {
-                const newGrid = produce(grid, gridCopy => {
-                  gridCopy[y][x] = 1 - gridCopy[y][x]; // toggle
-                });
-                setGrid(newGrid)
-              }}
-              key={`${y}-${x}`}
-              style={{
-                width: GRID_WIDTH,
-                height: GRID_HEIGHT,
-                backgroundColor: grid[y][x] ? 'skyblue' : undefined,
-                border: 'solid 1px #232323'
-              }} />))}
+      <div className="grid-container">
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${NUM_COLS}, ${GRID_WIDTH}px)`
+        }}>
+          {grid.map((rows, y) =>
+            rows.map((col: number[], x: number) =>
+              <div
+                onClick={() => {
+                  const newGrid = produce(grid, gridCopy => {
+                    gridCopy[y][x] = 1 - gridCopy[y][x]; // toggle
+                  });
+                  setGrid(newGrid)
+                }}
+                key={`${y}-${x}`}
+                style={{
+                  width: GRID_WIDTH,
+                  height: GRID_HEIGHT,
+                  backgroundColor: grid[y][x] ? 'skyblue' : undefined,
+                  border: 'solid 1px #232323'
+                }} />))}
+        </div>
+      </div>
+
+      <div className="menu-container">
+        <button
+          onClick={() => {
+            setRunning(!running);
+            runningRef.current = true;
+            runSimulation();
+          }}
+        >{running ? 'Stop' : 'Start'}</button>
+        <button
+          onClick={() => {
+            setWrapAround(!wrapAround);
+            wrapAroundRef.current = !wrapAround;
+          }}
+          disabled={runningRef.current}
+        >{wrapAround ? 'Wrap-around: ON' : 'Wrap-around: OFF'}
+        </button>
       </div>
     </div>
   );
