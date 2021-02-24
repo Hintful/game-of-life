@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import produce from 'immer';
+import "react-awesome-button/dist/styles.css";
 
 const NUM_ROWS = 50; // max 50
 const NUM_COLS = 120; // max 120
@@ -7,7 +8,7 @@ const NUM_COLS = 120; // max 120
 const GRID_WIDTH = 15;
 const GRID_HEIGHT = 15;
 
-const SIMULATION_SPEED = 50; // one tick = 500ms
+const INITIAL_SIMULATION_SPEED = 50; // one tick = 500ms
 
 const neighbour_coords = [
   [-1, -1], [-1, 0], [-1, 1], [0, 1], [0, -1], [1, -1], [1, 0], [1, 1]
@@ -23,6 +24,10 @@ function App() {
   const wrapAroundRef = useRef(wrapAround);
   runningRef.current = running;
   wrapAroundRef.current = wrapAround;
+
+  const [simulationSpeed, setSimulationSpeed] = useState(INITIAL_SIMULATION_SPEED);
+  const speedRef = useRef(simulationSpeed);
+  speedRef.current = simulationSpeed;
 
   const runSimulation = useCallback(() => {
     if (!runningRef.current) { return; }
@@ -56,8 +61,7 @@ function App() {
         })
       })
     }
-
-    setTimeout(runSimulation, SIMULATION_SPEED);
+    setTimeout(runSimulation, speedRef.current);
   }, [])
 
   return (
@@ -87,21 +91,33 @@ function App() {
       </div>
 
       <div className="menu-container">
-        <button
-          onClick={() => {
-            setRunning(!running);
-            runningRef.current = true;
-            runSimulation();
-          }}
-        >{running ? 'Stop' : 'Start'}</button>
-        <button
-          onClick={() => {
-            setWrapAround(!wrapAround);
-            wrapAroundRef.current = !wrapAround;
-          }}
-          disabled={runningRef.current}
-        >{wrapAround ? 'Wrap-around: ON' : 'Wrap-around: OFF'}
-        </button>
+        <div className="menu-button-container">
+          <button
+            style={{
+              padding: "10px 30px"
+            }}
+            onClick={() => {
+              setRunning(!running);
+              runningRef.current = true;
+              runSimulation();
+            }}
+          >{running ? 'Stop' : 'Start'}
+          </button>
+          <button
+            onClick={() => {
+              setWrapAround(!wrapAround);
+              wrapAroundRef.current = !wrapAround;
+            }}
+            disabled={runningRef.current}
+          >{wrapAround ? 'Wrap-around: ON' : 'Wrap-around: OFF'}
+          </button>
+        </div>
+        <div className="speed-control-container">
+          <input type="range" min={50} max={1000} onChange={(e) => {
+            setSimulationSpeed(Number(e.target.value));
+          }} disabled={runningRef.current} />
+          <div>{`${simulationSpeed}ms`}</div>
+        </div>
       </div>
     </div>
   );
