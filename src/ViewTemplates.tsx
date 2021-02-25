@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { GRID_WIDTH, GRID_HEIGHT } from './App';
 
 const PREVIEW_GRID_WIDTH = 10;
 const PREVIEW_GRID_HEIGHT = 10;

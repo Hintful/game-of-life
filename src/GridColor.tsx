@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 export const GridColor = [
   // undefined, // 0
   // '#ffb6c1', // 1

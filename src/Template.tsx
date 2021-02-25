@@ -1,6 +1,3 @@
-import * as React from 'react';
-
-
 export const templates = [
   //******* Still lifes ********
   {
