@@ -1,4 +1,5 @@
 import * as React from 'react';
+import ReactGA from 'react-ga';
 
 const PREVIEW_GRID_WIDTH = 10;
 const PREVIEW_GRID_HEIGHT = 10;
@@ -12,6 +13,10 @@ const ViewTemplates: React.SFC<ViewTemplatesProps> = (props) => {
   return (  
     <div className="view-template"
       onClick={() => {
+        ReactGA.event({
+          category: 'Game of Life',
+          action: `User Clicked ${props.template.name} Template`
+        });
         props.loadTemplate(props.template.grid)
       }}
     >

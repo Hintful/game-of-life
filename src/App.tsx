@@ -1,10 +1,11 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import produce from 'immer';
 import "react-awesome-button/dist/styles.css";
 import { templates } from './Template';
 import ViewTemplates from './ViewTemplates';
 import { GridColor } from './GridColor';
 import ColorDescription from './ColorDescription';
+import ReactGA from 'react-ga';
 
 export const NUM_ROWS = 50; // max 50
 export const NUM_COLS = 120; // max 120
@@ -20,6 +21,18 @@ const NUM_ITERATIONS_ULTRA = 100; // number of iterations to perform for ultra m
 const neighbour_coords = [
   [-1, -1], [-1, 0], [-1, 1], [0, 1], [0, -1], [1, -1], [1, 0], [1, 1]
 ]
+
+
+function usePageViews() {
+  useEffect(() => {
+    if(!(window as any).GA_INIT) {
+      ReactGA.initialize("UA-186165133-1");
+      (window as any).GA_INIT = true;
+    }
+    ReactGA.set({ page: window.location.pathname });
+    ReactGA.pageview(window.location.pathname);
+  }, []);
+}
 
 function App() {
   const [grid, setGrid] = useState(() => {
@@ -44,8 +57,6 @@ function App() {
   const [rainbowMode, setRainbowMode] = useState(true);
 
   const pageTop = useRef<HTMLInputElement>(null);
-
-  
 
   function resetGrid() {
     setGrid((curGrid) => {
@@ -76,7 +87,7 @@ function App() {
       }))
     })
 
-    if(pageTop && pageTop.current)
+    if (pageTop && pageTop.current)
       pageTop.current.scrollIntoView({ behavior: "smooth" });
   }
 
@@ -97,11 +108,11 @@ function App() {
   //   const initial_cell_count = getCurrentCellCount();
   //   const total_cell_score = runSimulation(NUM_ITERATIONS_ULTRA);
 
-    
+
   // }
 
   const runSimulation = useCallback(() => {
-  // function runSimulation(iter_count: number): any {
+    // function runSimulation(iter_count: number): any {
     // if (!runningRef.current || iter_count === 0) { return score; }
     if (!runningRef.current) { return; }
     else {
@@ -125,9 +136,9 @@ function App() {
               })
 
               if (neighbour_cells < 2 || neighbour_cells > 3) { // kill cell
-                gridCopy[y][x] = 0; 
+                gridCopy[y][x] = 0;
               } else if (curGrid[y][x] === 0 && neighbour_cells === 3) { // reproduction
-                gridCopy[y][x] = 1; 
+                gridCopy[y][x] = 1;
               } else if (curGrid[y][x] >= 1 && neighbour_cells >= 2 && neighbour_cells <= 3) { // continuation
                 gridCopy[y][x] = curGrid[y][x] + 1;
               }
@@ -156,6 +167,8 @@ function App() {
     // setTimeout(() => runSimulation(iter_count - 1), speedRef.current);
   }, [])
   // }
+
+  usePageViews();
 
   return (
     <div className="App" ref={pageTop}>
@@ -200,12 +213,19 @@ function App() {
               padding: "10px 30px"
             }}
             onClick={() => {
+              ReactGA.event({
+                category: 'Game of Life',
+                action: 'User Clicked Start'
+              });
               setRunning(!running);
               runningRef.current = true;
               // runSimulation(-1); // -1 to run it indefinitely
+              if (pageTop && pageTop.current)
+                pageTop.current.scrollIntoView({ behavior: "smooth" });
               runSimulation();
             }}
-          >{running ? 'Stop' : 'Start'}
+          >
+            {running ? 'Stop' : 'Start'}
           </button>
           {/* <button
             style={{
@@ -231,6 +251,10 @@ function App() {
             onClick={() => {
               setWrapAround(!wrapAround);
               wrapAroundRef.current = !wrapAround;
+              ReactGA.event({
+                category: 'Game of Life',
+                action: 'User Clicked Wrap-around Button'
+              });
             }}
             disabled={runningRef.current}
           >{wrapAround ? 'Wrap-around: ON' : 'Wrap-around: OFF'}
@@ -238,6 +262,10 @@ function App() {
           <button
             onClick={() => {
               setRainbowMode(!rainbowMode);
+              ReactGA.event({
+                category: 'Game of Life',
+                action: 'User Clicked Color-mode Button'
+              });
             }}
             disabled={runningRef.current}
           >
