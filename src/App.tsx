@@ -3,6 +3,8 @@ import produce from 'immer';
 import "react-awesome-button/dist/styles.css";
 import { templates } from './Template';
 import ViewTemplates from './ViewTemplates';
+import { GridColor } from './GridColor';
+import ColorDescription from './ColorDescription';
 
 export const NUM_ROWS = 50; // max 50
 export const NUM_COLS = 120; // max 120
@@ -39,6 +41,7 @@ function App() {
   scoreRef.current = score;
 
   const [ultraScoreLabel, setUltraScoreLabel] = useState("");
+  const [rainbowMode, setRainbowMode] = useState(true);
 
   const pageTop = useRef<HTMLInputElement>(null);
 
@@ -87,19 +90,20 @@ function App() {
     return count;
   }
 
-  async function playUltra() {
-    setRunning(true);
-    runningRef.current = true;
+  // async function playUltra() {
+  //   setRunning(true);
+  //   runningRef.current = true;
 
-    const initial_cell_count = getCurrentCellCount();
-    const total_cell_score = runSimulation(NUM_ITERATIONS_ULTRA);
+  //   const initial_cell_count = getCurrentCellCount();
+  //   const total_cell_score = runSimulation(NUM_ITERATIONS_ULTRA);
 
     
-  }
+  // }
 
-  // const runSimulation = useCallback(() => {
-  function runSimulation(iter_count: number): any {
-    if (!runningRef.current || iter_count === 0) { return score; }
+  const runSimulation = useCallback(() => {
+  // function runSimulation(iter_count: number): any {
+    // if (!runningRef.current || iter_count === 0) { return score; }
+    if (!runningRef.current) { return; }
     else {
       setGrid((curGrid) => {
         return produce(curGrid, gridCopy => {
@@ -111,20 +115,21 @@ function App() {
                   const newY = y + a;
                   const newX = x + b;
                   if (newY >= 0 && newY < NUM_ROWS && newX >= 0 && newX < NUM_COLS) {
-                    neighbour_cells += curGrid[newY][newX];
+                    neighbour_cells += curGrid[newY][newX] > 0 ? 1 : 0;
                   }
                 } else {
                   const newY = (y + a + NUM_ROWS) % NUM_ROWS;
                   const newX = (x + b + NUM_COLS) % NUM_COLS;
-                  neighbour_cells += curGrid[newY][newX];
+                  neighbour_cells += curGrid[newY][newX] > 0 ? 1 : 0;
                 }
               })
 
-              if (neighbour_cells < 2 || neighbour_cells > 3) {
-                gridCopy[y][x] = 0; // kill cell
-              } else if (curGrid[y][x] === 0 && neighbour_cells === 3) {
-                gridCopy[y][x] = 1;
-                // setScore(scoreRef.current + 1);
+              if (neighbour_cells < 2 || neighbour_cells > 3) { // kill cell
+                gridCopy[y][x] = 0; 
+              } else if (curGrid[y][x] === 0 && neighbour_cells === 3) { // reproduction
+                gridCopy[y][x] = 1; 
+              } else if (curGrid[y][x] >= 1 && neighbour_cells >= 2 && neighbour_cells <= 3) { // continuation
+                gridCopy[y][x] = curGrid[y][x] + 1;
               }
             }
           }
@@ -143,20 +148,21 @@ function App() {
             }
           }
           setScore(scoreRef.current + new_cells);
-          console.log(scoreRef.current);
+          // console.log(scoreRef.current);
         })
       })
     }
-    setTimeout(() => runSimulation(iter_count - 1), speedRef.current);
-  // }, [])
-  }
+    setTimeout(runSimulation, speedRef.current);
+    // setTimeout(() => runSimulation(iter_count - 1), speedRef.current);
+  }, [])
+  // }
 
   return (
-    <div className="App">
+    <div className="App" ref={pageTop}>
       <div className="score" style={{ color: 'white' }}>
-        Score: {score}
+        Cells reproduced <strong>{score.toLocaleString()}</strong>
       </div>
-      <div className="grid-container" ref={pageTop}>
+      <div className="grid-container">
         <div style={{
           display: 'grid',
           gridTemplateColumns: `repeat(${NUM_COLS}, ${GRID_WIDTH}px)`
@@ -176,10 +182,15 @@ function App() {
                 style={{
                   width: GRID_WIDTH,
                   height: GRID_HEIGHT,
-                  backgroundColor: grid[y][x] ? 'skyblue' : undefined,
+                  // backgroundColor: grid[y][x] ? 'skyblue' : undefined,
+                  backgroundColor: rainbowMode ? GridColor[Math.min(grid[y][x], 30)] : grid[y][x] ? 'skyblue' : undefined,
                   border: 'solid 1px #232323'
                 }} />))}
         </div>
+      </div>
+
+      <div style={{ display: rainbowMode ? "inline" : "none" }}>
+        <ColorDescription gridColors={GridColor} />
       </div>
 
       <div className="menu-container">
@@ -191,11 +202,12 @@ function App() {
             onClick={() => {
               setRunning(!running);
               runningRef.current = true;
-              runSimulation(-1); // -1 to run it indefinitely
+              // runSimulation(-1); // -1 to run it indefinitely
+              runSimulation();
             }}
           >{running ? 'Stop' : 'Start'}
           </button>
-          <button
+          {/* <button
             style={{
               padding: "10px 30px"
             }}
@@ -205,7 +217,7 @@ function App() {
             disabled={runningRef.current}
           >
             ULTRA
-          </button>
+          </button> */}
           <button
             style={{
               padding: "10px 30px"
@@ -222,6 +234,14 @@ function App() {
             }}
             disabled={runningRef.current}
           >{wrapAround ? 'Wrap-around: ON' : 'Wrap-around: OFF'}
+          </button>
+          <button
+            onClick={() => {
+              setRainbowMode(!rainbowMode);
+            }}
+            disabled={runningRef.current}
+          >
+            {rainbowMode ? 'Color Mode: Rainbow' : 'Color Mode: Monochromatic'}
           </button>
         </div>
         <div className="speed-control-container">
