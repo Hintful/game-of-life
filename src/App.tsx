@@ -31,6 +31,10 @@ function App() {
   const speedRef = useRef(simulationSpeed);
   speedRef.current = simulationSpeed;
 
+  const [score, setScore] = useState(0);
+  const scoreRef = useRef(score);
+  scoreRef.current = score;
+
   const pageTop = useRef<HTMLInputElement>(null);
 
   
@@ -45,6 +49,7 @@ function App() {
         }
       }))
     })
+    setScore(0);
   }
 
   function loadTemplate(template: number[][]) {
@@ -93,9 +98,26 @@ function App() {
                 gridCopy[y][x] = 0; // kill cell
               } else if (curGrid[y][x] === 0 && neighbour_cells === 3) {
                 gridCopy[y][x] = 1;
+                // setScore(scoreRef.current + 1);
               }
             }
           }
+
+          // count new cells
+          let new_cells = 0
+          for (let y = 0; y < NUM_ROWS; y++) {
+            for (let x = 0; x < NUM_COLS; x++) {
+              // scoring scheme 1
+              if (gridCopy[y][x] && !curGrid[y][x]) {
+                new_cells += 1
+              }
+
+              // scoring scheme 2
+              // new_cells += gridCopy[y][x]
+            }
+          }
+          setScore(scoreRef.current + new_cells);
+          console.log(scoreRef.current);
         })
       })
     }
@@ -104,6 +126,9 @@ function App() {
 
   return (
     <div className="App">
+      <div className="score" style={{ color: 'white' }}>
+        Score: {score}
+      </div>
       <div className="grid-container" ref={pageTop}>
         <div style={{
           display: 'grid',
