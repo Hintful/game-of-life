@@ -12,6 +12,9 @@ export const GRID_HEIGHT = 15;
 
 const INITIAL_SIMULATION_SPEED = 300; // one tick = 300ms
 
+// Ultra mode default setting
+const NUM_ITERATIONS_ULTRA = 100; // number of iterations to perform for ultra mode
+
 const neighbour_coords = [
   [-1, -1], [-1, 0], [-1, 1], [0, 1], [0, -1], [1, -1], [1, 0], [1, 1]
 ]
@@ -34,6 +37,8 @@ function App() {
   const [score, setScore] = useState(0);
   const scoreRef = useRef(score);
   scoreRef.current = score;
+
+  const [ultraScoreLabel, setUltraScoreLabel] = useState("");
 
   const pageTop = useRef<HTMLInputElement>(null);
 
@@ -72,8 +77,29 @@ function App() {
       pageTop.current.scrollIntoView({ behavior: "smooth" });
   }
 
-  const runSimulation = useCallback(() => {
-    if (!runningRef.current) { return; }
+  function getCurrentCellCount() {
+    let count = 0; // init
+    for (let y = 0; y < NUM_ROWS; y++) {
+      for (let x = 0; x < NUM_COLS; x++) {
+        count += grid[y][x];
+      }
+    }
+    return count;
+  }
+
+  async function playUltra() {
+    setRunning(true);
+    runningRef.current = true;
+
+    const initial_cell_count = getCurrentCellCount();
+    const total_cell_score = runSimulation(NUM_ITERATIONS_ULTRA);
+
+    
+  }
+
+  // const runSimulation = useCallback(() => {
+  function runSimulation(iter_count: number): any {
+    if (!runningRef.current || iter_count === 0) { return score; }
     else {
       setGrid((curGrid) => {
         return produce(curGrid, gridCopy => {
@@ -121,8 +147,9 @@ function App() {
         })
       })
     }
-    setTimeout(runSimulation, speedRef.current);
-  }, [])
+    setTimeout(() => runSimulation(iter_count - 1), speedRef.current);
+  // }, [])
+  }
 
   return (
     <div className="App">
@@ -164,9 +191,20 @@ function App() {
             onClick={() => {
               setRunning(!running);
               runningRef.current = true;
-              runSimulation();
+              runSimulation(-1); // -1 to run it indefinitely
             }}
           >{running ? 'Stop' : 'Start'}
+          </button>
+          <button
+            style={{
+              padding: "10px 30px"
+            }}
+            onClick={() => {
+              playUltra();
+            }}
+            disabled={runningRef.current}
+          >
+            ULTRA
           </button>
           <button
             style={{
